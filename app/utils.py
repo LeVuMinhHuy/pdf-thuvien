@@ -20,9 +20,6 @@ def process_single_pdf(uploaded_file):
 
         num_pages = len(reader.pages)
 
-        output_filename = f"processed_{uploaded_file.name}"
-        output_path = os.path.join('media', output_filename)  # Adjust path as needed
-
         for page_num in range(num_pages):
             page = reader.pages[page_num]
         
@@ -39,10 +36,10 @@ def process_single_pdf(uploaded_file):
 
             print(f"Processed page {page_num + 1}/{num_pages}")
 
-        with open(output_path, "wb") as fp:
-            writer.write(fp)
-        
-        return output_filename
+        output_pdf = io.BytesIO()
+        writer.write(output_pdf)
+        output_pdf.seek(0)
+        return uploaded_file.name.replace('.pdf', '_processed.pdf'), output_pdf.read()
 
 def process_zip_file(uploaded_file):
     output_zip = io.BytesIO()
@@ -50,8 +47,9 @@ def process_zip_file(uploaded_file):
         for file_name in zip_ref.namelist():
             if file_name.endswith('.pdf'):
                 with zip_ref.open(file_name) as pdf_file:
-                    processed_pdf = process_single_pdf(pdf_file)
-                    output_zip_file.writestr(file_name.replace('.pdf', '_processed.pdf'), processed_pdf)
+                    processed_filename, processed_pdf = process_single_pdf(pdf_file)
+                    if processed_pdf:
+                        output_zip_file.writestr(processed_filename, processed_pdf)
 
     output_zip.seek(0)
-    return output_zip.read()
+    return 'processed_files.zip', output_zip.read()

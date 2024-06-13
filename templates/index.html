@@ -2,16 +2,20 @@
 <html>
 <head>
     <title>Upload PDF</title>
+    <!-- Optionally include Bootstrap for button styling -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h2>Upload PDF file</h2>
-    <form id="uploadForm" method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <input type="file" name="file" accept=".pdf" required>
-        <button type="submit">Upload</button>
-    </form>
-    <div id="progress"></div>
-    <div id="result"></div>
+    <div class="container mt-5">
+        <h2>Upload PDF file</h2>
+        <form id="uploadForm" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="file" name="file" accept=".pdf" required>
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+        <div id="progress"></div>
+        <div id="result" class="mt-3"></div>
+    </div>
 
     <script>
         document.getElementById('uploadForm').addEventListener('submit', function(e) {
@@ -32,25 +36,23 @@
 
             // Handle server response
             xhr.onload = function() {
-                console.log("===>", xhr.status, xhr.responseText")
                 if (xhr.status === 200) {
-                    var response = JSON.parse(xhr.responseText);
-                    var processed_file = response['processed_file'];
-
                     var downloadButton = document.createElement('a');
-                    downloadButton.href = '/media/' + processed_file;  // Adjust path if necessary
-                    downloadButton.download = processed_file;
-                    var buttonText = document.createTextNode('Download file');
-                    downloadButton.innerHTML = '<br>';
-                    downloadButton.appendChild(buttonText);
-                    downloadButton.classList.add('btn', 'btn-primary'); // Bootstrap classes for button styling
+                    downloadButton.href = URL.createObjectURL(xhr.response); // Create object URL for the processed file
+                    downloadButton.download = 'processed_file.pdf'; // Set default download filename
+                    downloadButton.innerHTML = 'Download processed file';
+                    downloadButton.classList.add('btn', 'btn-success', 'mt-3'); // Bootstrap classes for button styling
 
                     document.getElementById('result').innerHTML = ''; // Clear previous content
                     document.getElementById('result').appendChild(downloadButton);
                 } else {
                     console.error('Upload failed with status ' + xhr.status);
+                    document.getElementById('result').innerText = 'Upload failed with status ' + xhr.status;
                 }
             };
+
+            // Set response type to arraybuffer (since we are handling bytes)
+            xhr.responseType = 'arraybuffer';
 
             // Send form data to server
             xhr.send(formData);
@@ -58,4 +60,3 @@
     </script>
 </body>
 </html>
-
