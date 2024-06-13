@@ -15,3 +15,5 @@ media/
 pdfsplit/
 
 static/
+
+db.sqlite3
