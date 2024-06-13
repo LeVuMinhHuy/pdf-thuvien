@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-acp-^9f&j*@(r8nle@6wtgpkylxm-e9@!go^_+-clmk$fkh0(y
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['pdf-thuvien.vercel.app']
 
 
 # Application definition
