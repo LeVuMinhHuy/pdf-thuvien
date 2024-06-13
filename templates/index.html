@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload PDF</title>
+</head>
+<body>
+    <h2>Upload PDF file</h2>
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="file" accept=".pdf" required>
+        <button type="submit">Upload</button>
+    </form>
+    <div id="progress"></div>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            var formData = new FormData(this);
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('POST', '/', true);
+
+            // Track upload progress
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    var percentComplete = (e.loaded / e.total) * 100;
+                    document.getElementById('progress').innerText = 'Upload progress: ' + percentComplete.toFixed(2) + '%';
+                }
+            };
+
+            // Handle server response
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var processed_file = response['processed_file'];
+
+                    var downloadButton = document.createElement('a');
+                    downloadButton.href = '/media/' + processed_file;  // Adjust path if necessary
+                    downloadButton.download = processed_file;
+                    var buttonText = document.createTextNode('Download file');
+                    downloadButton.innerHTML = '<br>';
+                    downloadButton.appendChild(buttonText);
+                    downloadButton.classList.add('btn', 'btn-primary'); // Bootstrap classes for button styling
+
+                    document.getElementById('result').innerHTML = ''; // Clear previous content
+                    document.getElementById('result').appendChild(downloadButton);
+                } else {
+                    console.error('Upload failed with status ' + xhr.status);
+                }
+            };
+
+            // Send form data to server
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>
+
