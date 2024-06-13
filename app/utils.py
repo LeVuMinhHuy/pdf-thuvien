@@ -37,6 +37,8 @@ def process_single_pdf(uploaded_file):
             right_half.mediabox = RectangleObject([width / 2, 0, width, height])
             writer.add_page(right_half)
 
+            print(f"Processed page {page_num + 1}}/{num_pages}")
+
         with open(output_path, "wb") as fp:
             writer.write(fp)
         
